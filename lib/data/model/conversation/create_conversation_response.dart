@@ -14,3 +14,14 @@ class CreateConversationResponse {
 
   Map<String, dynamic> toJson() => _$CreateConversationResponseToJson(this);
 }
+
+@JsonSerializable()
+class GetListConversation {
+  List<MessageModel> data;
+  GetListConversation({required this.data});
+
+  factory GetListConversation.fromJson(Map<String, dynamic> json) =>
+      _$GetListConversationFromJson(json);
+
+  Map<String, dynamic> toJson() => _$GetListConversationToJson(this);
+}

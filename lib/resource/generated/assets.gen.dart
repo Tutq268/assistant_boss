@@ -305,8 +305,13 @@ class $AssetsImagesLoadingGen {
   /// File path: assets/images/loading/lottie_loading_2.json
   String get lottieLoading2 => 'assets/images/loading/lottie_loading_2.json';
 
+  /// File path: assets/images/loading/watting_answer_loading.json
+  String get wattingAnswerLoading =>
+      'assets/images/loading/watting_answer_loading.json';
+
   /// List of all assets
-  List<String> get values => [lottieLoading1, lottieLoading2];
+  List<String> get values =>
+      [lottieLoading1, lottieLoading2, wattingAnswerLoading];
 }
 
 class $AssetsImagesLoginGen {
@@ -327,12 +332,16 @@ class $AssetsImagesSplashGen {
   AssetGenImage get dataOnLogo =>
       const AssetGenImage('assets/images/splash/data_on_logo.png');
 
+  /// File path: assets/images/splash/logo2.png
+  AssetGenImage get logo2 =>
+      const AssetGenImage('assets/images/splash/logo2.png');
+
   /// File path: assets/images/splash/splash_bg.png
   AssetGenImage get splashBg =>
       const AssetGenImage('assets/images/splash/splash_bg.png');
 
   /// List of all assets
-  List<AssetGenImage> get values => [dataOnLogo, splashBg];
+  List<AssetGenImage> get values => [dataOnLogo, logo2, splashBg];
 }
 
 class Assets {

@@ -22,6 +22,8 @@ class AppPath {
   static const String bottomTabMenu = "assets/images/bottom_tab/menu_icon.png";
   static const String lottieLoading1 =
       "assets/images/loading/lottie_loading_2.json";
+  static const String wattingAnswerLoading =
+      "assets/images/loading/watting_answer_loading.json";
   static const String homeDrawerIcon =
       "assets/images/home/home_drawer_icon.png";
 

@@ -13,6 +13,9 @@ MessageModel _$MessageModelFromJson(Map<String, dynamic> json) => MessageModel(
           ? null
           : MessageItemModel.fromJson(
               json['lastMessage'] as Map<String, dynamic>),
+      createdAt: json['createdAt'] == null
+          ? null
+          : DateTime.parse(json['createdAt'] as String),
     );
 
 Map<String, dynamic> _$MessageModelToJson(MessageModel instance) =>
@@ -20,6 +23,7 @@ Map<String, dynamic> _$MessageModelToJson(MessageModel instance) =>
       'name': instance.name,
       'id': instance.id,
       'lastMessage': instance.lastMessage,
+      'createdAt': instance.createdAt?.toIso8601String(),
     };
 
 ChatMemberModel _$ChatMemberModelFromJson(Map<String, dynamic> json) =>
@@ -48,6 +52,11 @@ MessageItemModel _$MessageItemModelFromJson(Map<String, dynamic> json) =>
       createdAt: json['createdAt'] == null
           ? null
           : DateTime.parse(json['createdAt'] as String),
+      conversation: json['conversation'] as String? ?? '',
+      link: json['link'] as String?,
+      file: json['file'] == null
+          ? null
+          : ChatFileModel.fromJson(json['file'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$MessageItemModelToJson(MessageItemModel instance) =>
@@ -55,7 +64,10 @@ Map<String, dynamic> _$MessageItemModelToJson(MessageItemModel instance) =>
       'id': instance.id,
       'question': instance.question,
       'answer': instance.answer,
+      'conversation': instance.conversation,
+      'link': instance.link,
       'createdAt': instance.createdAt?.toIso8601String(),
+      'file': instance.file,
     };
 
 ChatAttachmentModel _$ChatAttachmentModelFromJson(Map<String, dynamic> json) =>
@@ -69,4 +81,22 @@ Map<String, dynamic> _$ChatAttachmentModelToJson(
     <String, dynamic>{
       'url': instance.url,
       'type': instance.type,
+    };
+
+ChatFileModel _$ChatFileModelFromJson(Map<String, dynamic> json) =>
+    ChatFileModel(
+      path: json['path'] as String? ?? '',
+      type: json['type'] as String? ?? '',
+      id: json['id'] as String? ?? '',
+      name: json['name'] as String? ?? '',
+      size: (json['size'] as num?)?.toDouble() ?? 0,
+    );
+
+Map<String, dynamic> _$ChatFileModelToJson(ChatFileModel instance) =>
+    <String, dynamic>{
+      'path': instance.path,
+      'type': instance.type,
+      'size': instance.size,
+      'id': instance.id,
+      'name': instance.name,
     };

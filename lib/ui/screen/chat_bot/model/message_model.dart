@@ -10,12 +10,18 @@ class MessageModel {
   @JsonKey(name: 'id', includeIfNull: true, defaultValue: "")
   final String id;
   final MessageItemModel? lastMessage;
+  final DateTime? createdAt;
 
-  MessageModel({
-    required this.name,
-    required this.id,
-    this.lastMessage,
-  });
+  String get getName {
+    if (createdAt == null) {
+      return name;
+    } else {
+      return createdAt!.tohhmmddMMyyyy();
+    }
+  }
+
+  MessageModel(
+      {required this.name, required this.id, this.lastMessage, this.createdAt});
 
   factory MessageModel.fromJson(Map<String, dynamic> json) =>
       _$MessageModelFromJson(json);
@@ -56,19 +62,25 @@ class MessageItemModel {
   final String question;
   @JsonKey(name: 'answer', includeIfNull: true, defaultValue: "")
   final String answer;
+  @JsonKey(name: 'conversation', includeIfNull: true, defaultValue: "")
+  final String conversation;
+  final String? link;
   final DateTime? createdAt;
+  final ChatFileModel? file;
 
   String get messgeTime {
     final date = createdAt == null ? DateTime.now() : createdAt!;
     return date.toHHmm();
   }
 
-  MessageItemModel({
-    required this.id,
-    required this.question,
-    required this.answer,
-    this.createdAt,
-  });
+  MessageItemModel(
+      {required this.id,
+      required this.question,
+      required this.answer,
+      this.createdAt,
+      required this.conversation,
+      this.link,
+      this.file});
 
   factory MessageItemModel.fromJson(Map<String, dynamic> json) =>
       _$MessageItemModelFromJson(json);
@@ -89,4 +101,29 @@ class ChatAttachmentModel {
       _$ChatAttachmentModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$ChatAttachmentModelToJson(this);
+}
+
+@JsonSerializable()
+class ChatFileModel {
+  @JsonKey(name: 'path', includeIfNull: true, defaultValue: "")
+  final String path;
+  @JsonKey(name: 'type', includeIfNull: true, defaultValue: "")
+  final String type;
+  @JsonKey(name: 'size', includeIfNull: true, defaultValue: 0)
+  final double size;
+  @JsonKey(name: 'id', includeIfNull: true, defaultValue: "")
+  final String id;
+  @JsonKey(name: 'name', includeIfNull: true, defaultValue: "")
+  final String name;
+  ChatFileModel(
+      {required this.path,
+      required this.type,
+      required this.id,
+      required this.name,
+      required this.size});
+
+  factory ChatFileModel.fromJson(Map<String, dynamic> json) =>
+      _$ChatFileModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ChatFileModelToJson(this);
 }

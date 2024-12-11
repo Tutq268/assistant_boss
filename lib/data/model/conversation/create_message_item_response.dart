@@ -14,3 +14,14 @@ class CreateMessageItemResponse {
 
   Map<String, dynamic> toJson() => _$CreateMessageItemResponseToJson(this);
 }
+
+@JsonSerializable()
+class CreateListMessageResponse {
+  List<MessageItemModel> data;
+  CreateListMessageResponse({required this.data});
+
+  factory CreateListMessageResponse.fromJson(Map<String, dynamic> json) =>
+      _$CreateListMessageResponseFromJson(json);
+
+  Map<String, dynamic> toJson() => _$CreateListMessageResponseToJson(this);
+}

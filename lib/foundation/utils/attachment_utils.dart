@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:hanam/foundation/utils/permission_helpers.dart';
+import 'package:file_picker/file_picker.dart';
 
 Future<List<File>?> pickMultimedia(BuildContext context) async {
   if (Platform.isIOS &&
@@ -122,15 +123,15 @@ String getChatId(String senderId, String receiverId) {
   return charList.join();
 }
 
+Future<List<File>?> pickFiles({
+  required FileType type,
+}) async {
+  FilePickerResult? result = await FilePicker.platform.pickFiles(
+    type: type,
+    allowCompression: false,
+    allowMultiple: false,
+    allowedExtensions: ['pdf', 'doc'],
+  );
 
-// Future<List<File>?> pickFiles({
-//   required FileType type,
-// }) async {
-//   FilePickerResult? result = await FilePicker.platform.pickFiles(
-//     type: type,
-//     allowCompression: false,
-//     allowMultiple: true,
-//   );
-
-//   return result?.files.map((e) => File(e.path!)).toList();
-// }
+  return result?.files.map((e) => File(e.path!)).toList();
+}

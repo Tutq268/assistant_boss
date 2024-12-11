@@ -60,9 +60,9 @@ class PermissionHelpers {
                 context: context,
                 builder: (BuildContext context) => CustomCupertinoAlert(
                   context: context,
-                   title: "Thông báo",
-            content: "Không thể mở thư viện",
-            rightButtonTitle: "Cài đặt",
+                  title: "Thông báo",
+                  content: "Không thể mở thư viện",
+                  rightButtonTitle: "Cài đặt",
                   rightAction: () async {
                     openAppSettings();
                   },
@@ -79,9 +79,9 @@ class PermissionHelpers {
         context: context,
         builder: (BuildContext context) => CustomCupertinoAlert(
           context: context,
-       title: "Thông báo",
-            content: "Không thể mở thư viện",
-            rightButtonTitle: "Cài đặt",
+          title: "Thông báo",
+          content: "Không thể mở thư viện",
+          rightButtonTitle: "Cài đặt",
           rightAction: () async {
             openAppSettings();
           },
@@ -193,9 +193,9 @@ class PermissionHelpers {
         context: context,
         builder: (BuildContext context) => CustomCupertinoAlert(
           context: context,
-         title: "Thông báo",
-            content: "Không thể mở thư viện",
-            rightButtonTitle: "Cài đặt",
+          title: "Thông báo",
+          content: "Không thể mở thư viện",
+          rightButtonTitle: "Cài đặt",
           rightAction: () async {
             openAppSettings();
           },
@@ -268,5 +268,31 @@ class PermissionHelpers {
       return true;
     }
     return false;
+  }
+
+  static Future<void> requestStoragePermission() async {
+    if (await Permission.storage.isGranted) {
+    } else {
+      PermissionStatus status = await Permission.storage.request();
+
+      if (status.isGranted) {
+      } else if (status.isDenied) {
+      } else if (status.isPermanentlyDenied) {
+        await openAppSettings();
+      }
+    }
+  }
+
+  static Future<void> requestMediaPermission() async {
+    if (await Permission.mediaLibrary.isGranted) {
+    } else {
+      PermissionStatus status = await Permission.mediaLibrary.request();
+
+      if (status.isGranted) {
+      } else if (status.isDenied) {
+      } else if (status.isPermanentlyDenied) {
+        await openAppSettings();
+      }
+    }
   }
 }

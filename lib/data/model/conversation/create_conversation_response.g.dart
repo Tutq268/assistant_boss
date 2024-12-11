@@ -17,3 +17,16 @@ Map<String, dynamic> _$CreateConversationResponseToJson(
     <String, dynamic>{
       'data': instance.data,
     };
+
+GetListConversation _$GetListConversationFromJson(Map<String, dynamic> json) =>
+    GetListConversation(
+      data: (json['data'] as List<dynamic>)
+          .map((e) => MessageModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+
+Map<String, dynamic> _$GetListConversationToJson(
+        GetListConversation instance) =>
+    <String, dynamic>{
+      'data': instance.data,
+    };

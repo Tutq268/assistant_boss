@@ -23,6 +23,7 @@ mixin _$DetailChatState {
   bool get showScrollBtn => throw _privateConstructorUsedError;
   int get unreadCount => throw _privateConstructorUsedError;
   MessageModel? get conversationInfo => throw _privateConstructorUsedError;
+  List<MessageModel> get listConversation => throw _privateConstructorUsedError;
   List<MessageItemModel> get messages => throw _privateConstructorUsedError;
   String? get wattingMessageId => throw _privateConstructorUsedError;
   bool get isWattingMessage => throw _privateConstructorUsedError;
@@ -50,6 +51,7 @@ abstract class $DetailChatStateCopyWith<$Res> {
       bool showScrollBtn,
       int unreadCount,
       MessageModel? conversationInfo,
+      List<MessageModel> listConversation,
       List<MessageItemModel> messages,
       String? wattingMessageId,
       bool isWattingMessage,
@@ -79,6 +81,7 @@ class _$DetailChatStateCopyWithImpl<$Res, $Val extends DetailChatState>
     Object? showScrollBtn = null,
     Object? unreadCount = null,
     Object? conversationInfo = freezed,
+    Object? listConversation = null,
     Object? messages = null,
     Object? wattingMessageId = freezed,
     Object? isWattingMessage = null,
@@ -111,6 +114,10 @@ class _$DetailChatStateCopyWithImpl<$Res, $Val extends DetailChatState>
           ? _value.conversationInfo
           : conversationInfo // ignore: cast_nullable_to_non_nullable
               as MessageModel?,
+      listConversation: null == listConversation
+          ? _value.listConversation
+          : listConversation // ignore: cast_nullable_to_non_nullable
+              as List<MessageModel>,
       messages: null == messages
           ? _value.messages
           : messages // ignore: cast_nullable_to_non_nullable
@@ -154,6 +161,7 @@ abstract class _$$DetailChatStateImplCopyWith<$Res>
       bool showScrollBtn,
       int unreadCount,
       MessageModel? conversationInfo,
+      List<MessageModel> listConversation,
       List<MessageItemModel> messages,
       String? wattingMessageId,
       bool isWattingMessage,
@@ -181,6 +189,7 @@ class __$$DetailChatStateImplCopyWithImpl<$Res>
     Object? showScrollBtn = null,
     Object? unreadCount = null,
     Object? conversationInfo = freezed,
+    Object? listConversation = null,
     Object? messages = null,
     Object? wattingMessageId = freezed,
     Object? isWattingMessage = null,
@@ -213,6 +222,10 @@ class __$$DetailChatStateImplCopyWithImpl<$Res>
           ? _value.conversationInfo
           : conversationInfo // ignore: cast_nullable_to_non_nullable
               as MessageModel?,
+      listConversation: null == listConversation
+          ? _value._listConversation
+          : listConversation // ignore: cast_nullable_to_non_nullable
+              as List<MessageModel>,
       messages: null == messages
           ? _value._messages
           : messages // ignore: cast_nullable_to_non_nullable
@@ -251,13 +264,15 @@ class _$DetailChatStateImpl implements _DetailChatState {
       this.showScrollBtn = false,
       this.unreadCount = 0,
       this.conversationInfo,
+      final List<MessageModel> listConversation = const [],
       final List<MessageItemModel> messages = const [],
       this.wattingMessageId = null,
-      this.isWattingMessage = true,
+      this.isWattingMessage = false,
       this.showEmojiPicker = false,
       this.loadingSentImage = false,
       this.isLoading = false})
-      : _messages = messages;
+      : _listConversation = listConversation,
+        _messages = messages;
 
   @override
   @JsonKey()
@@ -274,6 +289,16 @@ class _$DetailChatStateImpl implements _DetailChatState {
   final int unreadCount;
   @override
   final MessageModel? conversationInfo;
+  final List<MessageModel> _listConversation;
+  @override
+  @JsonKey()
+  List<MessageModel> get listConversation {
+    if (_listConversation is EqualUnmodifiableListView)
+      return _listConversation;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_listConversation);
+  }
+
   final List<MessageItemModel> _messages;
   @override
   @JsonKey()
@@ -301,7 +326,7 @@ class _$DetailChatStateImpl implements _DetailChatState {
 
   @override
   String toString() {
-    return 'DetailChatState(hideElements: $hideElements, messageController: $messageController, fieldFocusNode: $fieldFocusNode, showScrollBtn: $showScrollBtn, unreadCount: $unreadCount, conversationInfo: $conversationInfo, messages: $messages, wattingMessageId: $wattingMessageId, isWattingMessage: $isWattingMessage, showEmojiPicker: $showEmojiPicker, loadingSentImage: $loadingSentImage, isLoading: $isLoading)';
+    return 'DetailChatState(hideElements: $hideElements, messageController: $messageController, fieldFocusNode: $fieldFocusNode, showScrollBtn: $showScrollBtn, unreadCount: $unreadCount, conversationInfo: $conversationInfo, listConversation: $listConversation, messages: $messages, wattingMessageId: $wattingMessageId, isWattingMessage: $isWattingMessage, showEmojiPicker: $showEmojiPicker, loadingSentImage: $loadingSentImage, isLoading: $isLoading)';
   }
 
   @override
@@ -321,6 +346,8 @@ class _$DetailChatStateImpl implements _DetailChatState {
                 other.unreadCount == unreadCount) &&
             (identical(other.conversationInfo, conversationInfo) ||
                 other.conversationInfo == conversationInfo) &&
+            const DeepCollectionEquality()
+                .equals(other._listConversation, _listConversation) &&
             const DeepCollectionEquality().equals(other._messages, _messages) &&
             (identical(other.wattingMessageId, wattingMessageId) ||
                 other.wattingMessageId == wattingMessageId) &&
@@ -343,6 +370,7 @@ class _$DetailChatStateImpl implements _DetailChatState {
       showScrollBtn,
       unreadCount,
       conversationInfo,
+      const DeepCollectionEquality().hash(_listConversation),
       const DeepCollectionEquality().hash(_messages),
       wattingMessageId,
       isWattingMessage,
@@ -368,6 +396,7 @@ abstract class _DetailChatState implements DetailChatState {
       final bool showScrollBtn,
       final int unreadCount,
       final MessageModel? conversationInfo,
+      final List<MessageModel> listConversation,
       final List<MessageItemModel> messages,
       final String? wattingMessageId,
       final bool isWattingMessage,
@@ -387,6 +416,8 @@ abstract class _DetailChatState implements DetailChatState {
   int get unreadCount;
   @override
   MessageModel? get conversationInfo;
+  @override
+  List<MessageModel> get listConversation;
   @override
   List<MessageItemModel> get messages;
   @override

@@ -2,7 +2,7 @@ name: hanam
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -105,6 +105,8 @@ dev_dependencies:
   flutter_native_splash: ^2.4.0
   socket_io_client: ^2.0.3+1
   sentry_dart_plugin: ^2.1.0
+  file_picker: ^8.1.4
+  url_launcher: ^6.2.6
 
 flutter_intl:
   enabled: true
@@ -136,7 +138,6 @@ flutter_gen:
     enabled: true
 # The following section is specific to Flutter packages.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
@@ -151,7 +152,6 @@ flutter:
     - assets/images/loading/
     - assets/images/bottom_tab/
     - assets/images/chat/
- 
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

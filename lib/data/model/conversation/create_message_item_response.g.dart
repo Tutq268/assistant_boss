@@ -17,3 +17,17 @@ Map<String, dynamic> _$CreateMessageItemResponseToJson(
     <String, dynamic>{
       'data': instance.data,
     };
+
+CreateListMessageResponse _$CreateListMessageResponseFromJson(
+        Map<String, dynamic> json) =>
+    CreateListMessageResponse(
+      data: (json['data'] as List<dynamic>)
+          .map((e) => MessageItemModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+
+Map<String, dynamic> _$CreateListMessageResponseToJson(
+        CreateListMessageResponse instance) =>
+    <String, dynamic>{
+      'data': instance.data,
+    };

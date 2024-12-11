@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hanam/resource/generated/assets.gen.dart';
 import 'package:hanam/resource/dimens/app_dimen.dart';
 import 'package:hanam/resource/dimens/dimens.dart';
@@ -42,7 +43,7 @@ class _SplashPageState extends BasePageState<SplashPage, SplashCubit> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Assets.images.splash.dataOnLogo.image(),
+            Assets.images.splash.logo2.image(width: 120.w, height: 120.h),
             Container(
               margin: EdgeInsets.only(top: Dimens.d16.responsive()),
               child: Text(

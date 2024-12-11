@@ -7,6 +7,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:hanam/data/api/app_api_service.dart';
+import 'package:hanam/data/model/conversation/create_conversation_response.dart';
+import 'package:hanam/foundation/utils/permission_helpers.dart';
 import 'package:hanam/ui/screen/chat_bot/cubit/detail_chat_state.dart';
 import 'package:hanam/ui/screen/chat_bot/model/attachement.dart';
 import 'package:hanam/ui/screen/chat_bot/model/message.dart';
@@ -19,6 +21,7 @@ import 'package:injectable/injectable.dart';
 import 'package:path/path.dart' as p;
 import 'package:http_parser/http_parser.dart';
 import 'package:image/image.dart' as img;
+import 'package:file_picker/file_picker.dart';
 
 @Injectable()
 class DetailChatCubit extends BaseCubit<DetailChatState> {
@@ -29,10 +32,14 @@ class DetailChatCubit extends BaseCubit<DetailChatState> {
         ));
   final AppApiService hanamService;
 
-  Future<void> initData({required String id, String? type}) async {
+  Future<void> initData() async {
     return runBlocCatching(
         action: () async {
-          emit(state.copyWith(isLoading: true));
+          emit(state.copyWith(
+              isLoading: true,
+              isWattingMessage: false,
+              messages: [],
+              wattingMessageId: null));
           final createConversation = await hanamService.createConversationId();
           if (createConversation == null) {
             return;
@@ -40,6 +47,7 @@ class DetailChatCubit extends BaseCubit<DetailChatState> {
             final conversation = createConversation.data;
             emit(state.copyWith(conversationInfo: conversation));
             emit(state.copyWith(isLoading: false));
+            getListConversation();
           }
         },
         handleLoading: false,
@@ -52,23 +60,14 @@ class DetailChatCubit extends BaseCubit<DetailChatState> {
         });
   }
 
-  Future<void> getConversationInfo({required String id}) async {
+  Future<void> getListConversation() async {
     return runBlocCatching(
         action: () async {
-          // emit(state.copyWith(isLoading: true));
-          // final conversationInfo =
-          //     await hanamService.getConversationDetail(conversationId: id);
-          // if (conversationInfo == null || conversationInfo.data == null) {
-          //   // getIt.get<IToast>().show(
-          //   //     title: "Get conversation detail failed",
-          //   //     hasDismissButton: false,
-          //   //     isSuccess: false,
-          //   //     duration: const Duration(milliseconds: 3000));
-          //   navigator.pop();
-          //   return;
-          // }
-          // emit(state.copyWith(
-          //     conversationInfo: conversationInfo.data!.conversation));
+          final response = await hanamService.getListConversation();
+          if (response == null) {
+            return;
+          }
+          emit(state.copyWith(listConversation: response.data));
         },
         handleLoading: false,
         doOnSubscribe: () async {},
@@ -78,6 +77,99 @@ class DetailChatCubit extends BaseCubit<DetailChatState> {
         doOnSuccessOrError: () async {
           emit(state.copyWith(isLoading: false));
         });
+  }
+
+  Future<void> getListMessageByConversationId(
+      {required MessageModel item}) async {
+    return runBlocCatching(
+        action: () async {
+          emit(state.copyWith(
+              isLoading: true,
+              isWattingMessage: false,
+              conversationInfo: item,
+              messages: [],
+              wattingMessageId: null));
+          final response =
+              await hanamService.getListMessage(conversationId: item.id);
+          if (response == null) {
+            return;
+          } else {
+            final conversations = response.data;
+            emit(state.copyWith(messages: conversations));
+            emit(state.copyWith(isLoading: false));
+            getListConversation();
+          }
+        },
+        handleLoading: false,
+        doOnSubscribe: () async {},
+        doOnError: (AppException e) async {
+          print("do onError: $e");
+        },
+        doOnSuccessOrError: () async {
+          emit(state.copyWith(isLoading: false));
+        });
+  }
+
+  Future<void> pickFileWithPermission() async {
+    emit(state.copyWith(isWattingMessage: true));
+
+    if (Platform.isIOS) {
+      await PermissionHelpers.requestStoragePermission();
+    } else {
+      await PermissionHelpers.requestMediaPermission();
+    }
+
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', "docx"],
+        allowMultiple: false);
+
+    if (result == null) {
+      print("Chưa chọn file để upload");
+      emit(state.copyWith(isWattingMessage: false));
+
+      return;
+    }
+
+    var formData = FormData.fromMap({});
+    for (var file in result.files) {
+      formData.files.add(
+        MapEntry(
+          "files",
+          await MultipartFile.fromFile(
+            file.path!,
+            filename: file.name,
+          ),
+        ),
+      );
+    }
+    final response = await hanamService.uploadFile(body: formData);
+    if (response != null) {
+      final filesUpload = response.data;
+      if (filesUpload.isNotEmpty) {
+        final fileId = filesUpload[0].id;
+        if (state.conversationInfo == null) {
+          return;
+        }
+        final messageText = state.messageController?.text;
+        final conversationId = state.conversationInfo!.id;
+        state.messageController?.text = "";
+        emit(state.copyWith(
+          hideElements: false,
+        ));
+        final createMessage = await hanamService.createMessageItem(
+            conversationId: conversationId,
+            question: messageText ?? "",
+            file: fileId);
+        if (createMessage == null) {
+          return;
+        } else {
+          final newList = [createMessage.data, ...state.messages];
+          emit(state.copyWith(
+              messages: newList, wattingMessageId: createMessage.data.id));
+        }
+      }
+    }
   }
 
   // final SalalaConfigApiService hanamService;
@@ -172,7 +264,7 @@ class DetailChatCubit extends BaseCubit<DetailChatState> {
           if (createMessage == null) {
             return;
           } else {
-            final newList = [...state.messages, createMessage.data];
+            final newList = [createMessage.data, ...state.messages];
             emit(state.copyWith(
                 messages: newList, wattingMessageId: createMessage.data.id));
           }
@@ -185,6 +277,20 @@ class DetailChatCubit extends BaseCubit<DetailChatState> {
         doOnSuccessOrError: () async {
           // emit(state.copyWith(isLoading: false));
         });
+  }
+
+  void onUpdateMessageItem(MessageItemModel data) {
+    if (state.conversationInfo == null) {
+      return;
+    }
+    if (data.conversation == state.conversationInfo!.id) {
+      final findIndex =
+          state.messages.indexWhere((element) => element.id == data.id);
+      final newList2 = [...state.messages];
+      newList2[findIndex] = data;
+      emit(state.copyWith(
+          messages: newList2, wattingMessageId: null, isWattingMessage: false));
+    }
   }
 
   void handleAddMessage(MessageItemModel newMessage) {

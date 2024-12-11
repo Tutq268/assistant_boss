@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:auto_route/auto_route.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -7,6 +8,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
+import 'package:hanam/data/constant/server/url_constants.dart';
+import 'package:hanam/resource/dimens/dimens.dart';
 import 'package:hanam/ui/screen/chat_bot/cubit/detail_chat_cubit.dart';
 import 'package:hanam/ui/screen/chat_bot/cubit/detail_chat_state.dart';
 import 'package:hanam/ui/screen/chat_bot/model/message_model.dart';
@@ -38,6 +41,7 @@ import 'package:hanam/ui/share/scaffold/base_screen.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:file_picker/file_picker.dart';
 
 @RoutePage()
 class DetailChatPage extends StatefulWidget {
@@ -59,7 +63,7 @@ class DetailChatPageState
   @override
   void initState() {
     connectSocket();
-    cubit.initData(id: widget.conversationId, type: "single");
+    cubit.initData();
     super.initState();
   }
 
@@ -69,21 +73,20 @@ class DetailChatPageState
     final options = IO.OptionBuilder()
         .setTransports(['websocket'])
         .disableAutoConnect()
-        .setAuth({
-          "token": token,
-          "username": "bGg540onn6XU1P",
-          "password": "n6XU1PGz4mGXV3tMyI",
-        })
+        .setAuth({})
         .build();
-    socket = IO.io("http://192.168.1.191:8000/", options);
+    socket = IO.io(UrlConstants.appApiBaseUrl, options);
     socket.on('connect', (_) {
       print('SocketIO Connected');
-      socket.emit("join-conversation", widget.conversationId);
+      socket.emit("message", "hello a");
     });
 
-    socket.on(token, (value) {
-      print("value $value");
-      socket.on('Topic_$value', (message) {});
+    socket.on("message", (message) {
+      print("value $message");
+      final newMessage =
+          MessageItemModel.fromJson(json.decode(message.toString()));
+
+      cubit.onUpdateMessageItem(newMessage);
     });
     socket.on('disconnect', (_) {
       print('Disconnected');
@@ -98,6 +101,8 @@ class DetailChatPageState
     socket.disconnect();
     super.dispose();
   }
+
+  final GlobalKey<ScaffoldState> _scaffoldkey = new GlobalKey();
 
   @override
   Widget buildPage(BuildContext context) {
@@ -140,6 +145,8 @@ class DetailChatPageState
         // final recordingState = state.recordingState;
         return Scaffold(
           resizeToAvoidBottomInset: false,
+          key: _scaffoldkey,
+          drawer: renderDrawer(),
           appBar: AppBar(
             titleSpacing: 0.0,
             backgroundColor: Color(0xff1B1B1D),
@@ -150,7 +157,7 @@ class DetailChatPageState
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
-                    child: Text("Chat Bot",
+                    child: Text("Trợ lý",
                         maxLines: 1,
                         textAlign: TextAlign.center,
                         overflow: TextOverflow.ellipsis,
@@ -162,7 +169,9 @@ class DetailChatPageState
             ),
             leadingWidth: 36.h,
             leading: IconButton(
-              onPressed: () {},
+              onPressed: () {
+                _scaffoldkey.currentState?.openDrawer();
+              },
               icon: Icon(
                 Ionicons.list_outline,
                 size: 24.sp,
@@ -208,6 +217,100 @@ class DetailChatPageState
             ),
           ),
         );
+      },
+    );
+  }
+
+  Widget renderDrawer() {
+    return BlocBuilder<DetailChatCubit, DetailChatState>(
+      builder: (context, state) {
+        return SizedBox(
+            width: MediaQuery.of(context).size.width * 0.8,
+            child: Drawer(
+                child: Container(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: Dimens.d16.w, vertical: 40.h),
+                    decoration: BoxDecoration(color: Colors.black),
+                    child: Column(children: [
+                      InkWell(
+                        splashColor: Colors.transparent,
+                        highlightColor: Colors.transparent,
+                        onTap: () {
+                          _scaffoldkey.currentState?.closeDrawer();
+                          if (state.messages.isEmpty) {
+                            return;
+                          } else {
+                            cubit.initData();
+                          }
+                        },
+                        child: Container(
+                          padding: EdgeInsets.only(bottom: 16.h),
+                          decoration: BoxDecoration(
+                              border: Border(
+                                  bottom: BorderSide(
+                                      width: 1.w, color: Colors.white24))),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Ionicons.create_outline,
+                                size: 23.sp,
+                                color: Colors.white,
+                              ),
+                              SizedBox(
+                                width: 16.w,
+                              ),
+                              Container(
+                                margin: EdgeInsets.only(top: 2.h),
+                                child: Text(
+                                  "Đoạn chat mới",
+                                  style: AppTextStyles.s14w600Primary()
+                                      .copyWith(color: Colors.white),
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 16.h,
+                      ),
+                      Expanded(
+                        child: ListView.builder(
+                            padding: EdgeInsets.zero,
+                            shrinkWrap: true,
+                            itemCount: state.listConversation.length,
+                            itemBuilder: (ctx, index) {
+                              final item = state.listConversation[index];
+                              return InkWell(
+                                splashColor: Colors.transparent,
+                                highlightColor: Colors.transparent,
+                                onTap: () {
+                                  _scaffoldkey.currentState?.closeDrawer();
+                                  if (state.conversationInfo?.id == item.id) {
+                                    return;
+                                  } else {
+                                    cubit.getListMessageByConversationId(
+                                        item: item);
+                                  }
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.only(bottom: 12.h),
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    item.getName,
+                                    style: AppTextStyles.s14w500Primary()
+                                        .copyWith(
+                                            color: state.conversationInfo?.id ==
+                                                    item.id
+                                                ? Colors.white70
+                                                : Colors.white54),
+                                  ),
+                                ),
+                              );
+                            }),
+                      )
+                    ]))));
       },
     );
   }
@@ -281,46 +384,61 @@ class ChatInputContainerState extends State<ChatInputContainer>
         //     textController: widget.cubit.state.messageController!,
         //   ),
         // ),
-        child: Container(
-          color: const Color(0xff1B1B1D),
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 5.h),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: Container(
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(24.r),
-                          color: const Color(0xff1B1B1D)),
-                      // child: recordingState == RecordingState.notRecording
-                      //     ? _buildChatField(
-                      //         showEmojiPicker, context, hideElements)
-                      //     : VoiceRecorderField(
-                      //         cubit: widget.cubit,
-                      //       ),
-                      child: _buildChatField(
-                          showEmojiPicker, context, hideElements)),
+        child: BlocBuilder<DetailChatCubit, DetailChatState>(
+          builder: (context, state) {
+            return Container(
+              color: const Color(0xff1B1B1D),
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 5.h),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: Container(
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(24.r),
+                              color: const Color(0xff1B1B1D)),
+                          // child: recordingState == RecordingState.notRecording
+                          //     ? _buildChatField(
+                          //         showEmojiPicker, context, hideElements)
+                          //     : VoiceRecorderField(
+                          //         cubit: widget.cubit,
+                          //       ),
+                          child: _buildChatField(
+                              showEmojiPicker,
+                              context,
+                              state.isWattingMessage == true
+                                  ? true
+                                  : hideElements)),
+                    ),
+                    state.isWattingMessage
+                        ? Icon(
+                            Ionicons.radio_button_on_outline,
+                            size: 23.sp,
+                            color: Colors.grey,
+                          )
+                        : hideElements
+                            ? InkWell(
+                                onTap: () async {
+                                  if (widget.cubit.state.conversationInfo ==
+                                      null) {
+                                    return;
+                                  }
+                                  widget.cubit.onSendBtnPressed();
+                                },
+                                child: Icon(
+                                  Ionicons.send_outline,
+                                  color: AppColors.white90,
+                                  size: 22.sp,
+                                ),
+                              )
+                            : Container()
+                    // : const ChatInputMic(),
+                  ],
                 ),
-                hideElements
-                    ? InkWell(
-                        onTap: () async {
-                          if (widget.cubit.state.conversationInfo == null) {
-                            return;
-                          }
-                          widget.cubit.onSendBtnPressed();
-                        },
-                        child: Icon(
-                          Ionicons.send_outline,
-                          color: AppColors.white90,
-                          size: 22.sp,
-                        ),
-                      )
-                    : Container()
-                // : const ChatInputMic(),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         ));
   }
 
@@ -348,42 +466,7 @@ class ChatInputContainerState extends State<ChatInputContainer>
           if (!hideElements) ...[
             InkWell(
               onTap: () async {
-                showCupertinoModalPopup<void>(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (BuildContext dialogContext) {
-                      return CupertinoActionSheet(
-                        title: Text("Thao tac"),
-                        // message: const Text('Message'),
-                        actions: <CupertinoActionSheetAction>[
-                          CupertinoActionSheetAction(
-                            child: Text(
-                              "Camera",
-                              style: AppTextStyles.s16w400Primary()
-                                  .copyWith(color: AppColors.primaryColor),
-                            ),
-                            onPressed: () async {},
-                          ),
-                          CupertinoActionSheetAction(
-                              child: Text("Thu vien anh",
-                                  style: AppTextStyles.s16w400Primary()
-                                      .copyWith(color: AppColors.primaryDark)),
-                              onPressed: () async {
-                                Navigator.pop(context);
-                                final cameraPermission = await PermissionHelpers
-                                    .requestCameraPermission(context);
-                              }),
-                        ],
-                        cancelButton: CupertinoActionSheetAction(
-                          onPressed: () => context.router.pop(),
-                          child: Text(
-                            "Huy",
-                            style: AppTextStyles.s16w400Primary()
-                                .copyWith(color: AppColors.iconErrorDefault),
-                          ),
-                        ),
-                      );
-                    });
+                widget.cubit.pickFileWithPermission();
               },
               child: Icon(
                 Ionicons.document_attach_outline,
@@ -716,6 +799,8 @@ class ChatStreamState extends State<ChatStream> {
           },
           child: MessageCard(
             message: message,
+            isLoading: message.answer == "" &&
+                widget.cubit.state.isWattingMessage == true,
           ),
         ),
       ],

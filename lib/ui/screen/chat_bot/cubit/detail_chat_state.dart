@@ -16,9 +16,10 @@ class DetailChatState extends BaseState with _$DetailChatState {
       @Default(false) bool showScrollBtn,
       @Default(0) int unreadCount,
       MessageModel? conversationInfo,
+      @Default([]) List<MessageModel> listConversation,
       @Default([]) List<MessageItemModel> messages,
       @Default(null) String? wattingMessageId,
-      @Default(true) bool isWattingMessage,
+      @Default(false) bool isWattingMessage,
       @Default(false) bool showEmojiPicker,
       @Default(false) bool loadingSentImage,
       @Default(false) bool isLoading}) = _DetailChatState;

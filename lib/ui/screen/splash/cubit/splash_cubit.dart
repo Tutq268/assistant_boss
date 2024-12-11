@@ -14,17 +14,25 @@ class SplashCubit extends BaseCubit<SplashState> {
   final AppApiService apiClient;
   Future<void> initData() async {
     try {
-      emit(state.copyWith(isLoading: true));
-      final response = await apiClient.createUser();
-      if (response == null) {
-        return;
+      // await appPreference.clearCurrentUserData();
+
+      final currentUser = appPreference.currentUser;
+      if (currentUser == null) {
+        emit(state.copyWith(isLoading: true));
+        final response = await apiClient.createUser();
+        if (response == null) {
+          return;
+        } else {
+          final user = response.data;
+          await appPreference.saveCurrentUser(user);
+          appCubit.updateCurrentUser(user);
+          navigator.push(const AppRouteInfo.detailChatPage(""));
+        }
+        emit(state.copyWith(isLoading: false));
       } else {
-        final user = response.data;
-        await appPreference.saveCurrentUser(user);
-        appCubit.updateCurrentUser(user);
+        appCubit.updateCurrentUser(currentUser);
         navigator.push(const AppRouteInfo.detailChatPage(""));
       }
-      emit(state.copyWith(isLoading: false));
     } on DioException catch (_) {}
   }
 }

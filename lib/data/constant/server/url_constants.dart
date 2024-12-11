@@ -31,5 +31,6 @@ class UrlConstants {
 
   static String get appApiBaseUrl {
     return 'https://agenticai.lakaserver.com';
+    // return 'http://192.168.1.17:5000';
   }
 }

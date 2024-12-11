@@ -1,5 +1,6 @@
 // ignore_for_file: dead_code
 
+import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -11,11 +12,16 @@ import 'package:url_launcher/url_launcher.dart';
 
 class MessageCard extends StatefulWidget {
   const MessageCard(
-      {super.key, required this.message, required this.isLoading});
+      {super.key,
+      required this.message,
+      required this.isLoading,
+      required this.onDoneAnimation,
+      required this.isAnimationText});
 
   final MessageItemModel message;
   final bool isLoading;
-
+  final bool isAnimationText;
+  final Function() onDoneAnimation;
   @override
   State<MessageCard> createState() => _MessageCardState();
 }
@@ -40,7 +46,7 @@ class _MessageCardState extends State<MessageCard>
                       padding: EdgeInsets.only(
                           top: 6.h, bottom: 6.h, left: 8.w, right: 8.w),
                       constraints: BoxConstraints(
-                          maxWidth: MediaQuery.of(context).size.width * .8),
+                          maxWidth: MediaQuery.of(context).size.width * .9),
                       // alignment: Alignment.centerRight,
                       decoration: BoxDecoration(
                         color: Colors.grey.withOpacity(.2),
@@ -74,7 +80,7 @@ class _MessageCardState extends State<MessageCard>
                         padding: EdgeInsets.only(
                             top: 6.h, bottom: 6.h, left: 8.w, right: 8.w),
                         constraints: BoxConstraints(
-                            maxWidth: MediaQuery.of(context).size.width * .8),
+                            maxWidth: MediaQuery.of(context).size.width * .9),
                         // alignment: Alignment.centerRight,
                         decoration: BoxDecoration(
                           color: Colors.grey.withOpacity(.2),
@@ -97,7 +103,7 @@ class _MessageCardState extends State<MessageCard>
                 padding: EdgeInsets.only(
                     top: 6.h, bottom: 6.h, left: 8.w, right: 8.w),
                 constraints: BoxConstraints(
-                    maxWidth: MediaQuery.of(context).size.width * .8),
+                    maxWidth: MediaQuery.of(context).size.width * .9),
                 // alignment: Alignment.centerRight,
                 child: widget.isLoading == true
                     ? Container(
@@ -106,12 +112,19 @@ class _MessageCardState extends State<MessageCard>
                         child: Lottie.asset(AppPath.wattingAnswerLoading,
                             frameRate: FrameRate.max, animate: true),
                       )
-                    : Text(
-                        widget.message.answer,
-                        textAlign: TextAlign.justify,
-                        style: AppTextStyles.s14w400Primary()
-                            .copyWith(color: Colors.white),
-                      ),
+                    : widget.isAnimationText == true
+                        ? TypingTextWidget(
+                            text: widget.message.answer,
+                            typingSpeed: Duration(milliseconds: 10),
+                            onDone: () {
+                              widget.onDoneAnimation.call();
+                            },
+                          )
+                        : Text(
+                            widget.message.answer,
+                            style: AppTextStyles.s14w400Primary()
+                                .copyWith(color: Colors.white),
+                          ),
               ),
             ),
             widget.message.link == null
@@ -130,7 +143,7 @@ class _MessageCardState extends State<MessageCard>
                         padding: EdgeInsets.only(
                             top: 6.h, bottom: 6.h, left: 8.w, right: 8.w),
                         constraints: BoxConstraints(
-                            maxWidth: MediaQuery.of(context).size.width * .8),
+                            maxWidth: MediaQuery.of(context).size.width * .9),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.start,
@@ -156,5 +169,59 @@ class _MessageCardState extends State<MessageCard>
                   ),
           ],
         ));
+  }
+}
+
+class TypingTextWidget extends StatefulWidget {
+  final String text;
+  final Duration typingSpeed;
+  final Function() onDone;
+
+  const TypingTextWidget(
+      {Key? key,
+      required this.text,
+      this.typingSpeed = const Duration(milliseconds: 50),
+      required this.onDone})
+      : super(key: key);
+
+  @override
+  _TypingTextWidgetState createState() => _TypingTextWidgetState();
+}
+
+class _TypingTextWidgetState extends State<TypingTextWidget> {
+  late String _displayText = "";
+  late int _currentIndex = 0;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _startTyping();
+  }
+
+  void _startTyping() {
+    _timer = Timer.periodic(widget.typingSpeed, (timer) {
+      if (_currentIndex < widget.text.length) {
+        setState(() {
+          _displayText += widget.text[_currentIndex];
+          _currentIndex++;
+        });
+      } else {
+        widget.onDone.call();
+        _timer?.cancel();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(_displayText,
+        style: AppTextStyles.s14w400Primary().copyWith(color: Colors.white));
   }
 }

@@ -33,6 +33,7 @@ class _SplashPageState extends BasePageState<SplashPage, SplashCubit> {
       padding: EdgeInsets.zero,
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height,
+      decoration: BoxDecoration(color: AppColors.backGroundColor),
       // decoration: const BoxDecoration(
       //     image: DecorationImage(
       //         image: AssetImage("assets/images/splash/splash_bg.png"),

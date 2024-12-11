@@ -14,8 +14,6 @@ class SplashCubit extends BaseCubit<SplashState> {
   final AppApiService apiClient;
   Future<void> initData() async {
     try {
-      // await appPreference.clearCurrentUserData();
-
       final currentUser = appPreference.currentUser;
       if (currentUser == null) {
         emit(state.copyWith(isLoading: true));

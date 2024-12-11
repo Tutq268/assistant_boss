@@ -122,102 +122,107 @@ class DetailChatPageState
   }
 
   Widget _build(BuildContext context) {
-    return BlocBuilder<DetailChatCubit, DetailChatState>(
-      builder: (context, state) {
-        if (state.isLoading == true) {
-          return BaseScreen(
-            child: Center(
-              child: Container(
-                margin: EdgeInsets.only(top: 32.h),
-                child:
-                    CommonLoading(containerHeight: 42.w, containerWidth: 42.w),
+    return WillPopScope(
+      onWillPop: () async {
+        return false;
+      },
+      child: BlocBuilder<DetailChatCubit, DetailChatState>(
+        builder: (context, state) {
+          if (state.isLoading == true) {
+            return BaseScreen(
+              child: Center(
+                child: Container(
+                  margin: EdgeInsets.only(top: 32.h),
+                  child: CommonLoading(
+                      containerHeight: 42.w, containerWidth: 42.w),
+                ),
               ),
+            );
+          }
+          if (state.conversationInfo == null) {
+            return Container();
+          }
+          final currentUser = appCubit.state.currentUser;
+          if (currentUser == null) {
+            return Container();
+          }
+          // final recordingState = state.recordingState;
+          return Scaffold(
+            resizeToAvoidBottomInset: false,
+            key: _scaffoldkey,
+            drawer: renderDrawer(),
+            appBar: AppBar(
+              titleSpacing: 0.0,
+              backgroundColor: Color(0xff1B1B1D),
+              title: GestureDetector(
+                onTap: () {},
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text("Trợ lý AI cho lãnh đạo tỉnh",
+                          maxLines: 1,
+                          textAlign: TextAlign.center,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.s14w500Primary()
+                              .copyWith(color: Colors.white)),
+                    )
+                  ],
+                ),
+              ),
+              leadingWidth: 36.h,
+              leading: IconButton(
+                onPressed: () {
+                  _scaffoldkey.currentState?.openDrawer();
+                },
+                icon: Icon(
+                  Ionicons.list_outline,
+                  size: 24.sp,
+                  color: Colors.white.withOpacity(.48),
+                ),
+              ),
+              actions: [
+                Container(
+                  width: 36.w,
+                )
+              ],
             ),
-          );
-        }
-        if (state.conversationInfo == null) {
-          return Container();
-        }
-        final currentUser = appCubit.state.currentUser;
-        if (currentUser == null) {
-          return Container();
-        }
-        // final recordingState = state.recordingState;
-        return Scaffold(
-          resizeToAvoidBottomInset: false,
-          key: _scaffoldkey,
-          drawer: renderDrawer(),
-          appBar: AppBar(
-            titleSpacing: 0.0,
-            backgroundColor: Color(0xff1B1B1D),
-            title: GestureDetector(
-              onTap: () {},
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            body: Container(
+              decoration: const BoxDecoration(
+                color: AppColors.backGroundColor,
+              ),
+              child: Column(
                 children: [
                   Expanded(
-                    child: Text("Trợ lý",
-                        maxLines: 1,
-                        textAlign: TextAlign.center,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTextStyles.s14w500Primary()
-                            .copyWith(color: Colors.white)),
-                  )
-                ],
-              ),
-            ),
-            leadingWidth: 36.h,
-            leading: IconButton(
-              onPressed: () {
-                _scaffoldkey.currentState?.openDrawer();
-              },
-              icon: Icon(
-                Ionicons.list_outline,
-                size: 24.sp,
-                color: Colors.white.withOpacity(.48),
-              ),
-            ),
-            actions: [
-              Container(
-                width: 36.w,
-              )
-            ],
-          ),
-          body: Container(
-            decoration: const BoxDecoration(
-              color: AppColors.backGroundColor,
-            ),
-            child: Column(
-              children: [
-                Expanded(
-                  child: Platform.isIOS
-                      ? GestureDetector(
-                          onTap: () {
-                            SystemChannels.textInput.invokeMethod(
-                              "TextInput.hide",
-                            );
-                            cubit.setShowEmojiPicker(false);
-                          },
-                          child: ChatStream(
+                    child: Platform.isIOS
+                        ? GestureDetector(
+                            onTap: () {
+                              SystemChannels.textInput.invokeMethod(
+                                "TextInput.hide",
+                              );
+                              cubit.setShowEmojiPicker(false);
+                            },
+                            child: ChatStream(
+                              messages: state.messages,
+                              cubit: cubit,
+                            ),
+                          )
+                        : ChatStream(
                             messages: state.messages,
                             cubit: cubit,
                           ),
-                        )
-                      : ChatStream(
-                          messages: state.messages,
-                          cubit: cubit,
-                        ),
-                ),
-                SizedBox(
-                  height: 4.h,
-                ),
-                ChatInputContainer(cubit: cubit),
-              ],
+                  ),
+                  SizedBox(
+                    height: 4.h,
+                  ),
+                  ChatInputContainer(cubit: cubit),
+                ],
+              ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 
@@ -799,6 +804,12 @@ class ChatStreamState extends State<ChatStream> {
           },
           child: MessageCard(
             message: message,
+            onDoneAnimation: () {
+              widget.cubit.continueQuestion();
+            },
+            isAnimationText: widget.cubit.state.wattingMessageId == message.id
+                ? true
+                : false,
             isLoading: message.answer == "" &&
                 widget.cubit.state.isWattingMessage == true,
           ),

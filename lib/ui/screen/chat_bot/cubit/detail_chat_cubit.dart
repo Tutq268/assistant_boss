@@ -9,10 +9,12 @@ import 'package:flutter/widgets.dart';
 import 'package:hanam/data/api/app_api_service.dart';
 import 'package:hanam/data/model/conversation/create_conversation_response.dart';
 import 'package:hanam/foundation/utils/permission_helpers.dart';
+import 'package:hanam/ui/di/di.dart';
 import 'package:hanam/ui/screen/chat_bot/cubit/detail_chat_state.dart';
 import 'package:hanam/ui/screen/chat_bot/model/attachement.dart';
 import 'package:hanam/ui/screen/chat_bot/model/message.dart';
 import 'package:hanam/ui/screen/chat_bot/model/message_model.dart';
+import 'package:hanam/ui/share/toast/toast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:hanam/data/api/exceptions/app_exception.dart';
 import 'package:hanam/ui/cubit/base_cubit.dart';
@@ -126,13 +128,23 @@ class DetailChatCubit extends BaseCubit<DetailChatState> {
 
     if (result == null) {
       print("Chưa chọn file để upload");
-      emit(state.copyWith(isWattingMessage: false));
+      emit(state.copyWith(isWattingMessage: false, wattingMessageId: null));
 
       return;
     }
 
     var formData = FormData.fromMap({});
     for (var file in result.files) {
+      if (file.size > 1048576) {
+        getIt.get<IToast>().show(
+            title: "Tệp quá lớn. Vui lòng sử dụng tệp nhỏ hơn 1mb",
+            hasDismissButton: false,
+            isSuccess: false,
+            duration: const Duration(milliseconds: 3000));
+        emit(state.copyWith(isWattingMessage: false, wattingMessageId: null));
+
+        return;
+      }
       formData.files.add(
         MapEntry(
           "files",
@@ -166,7 +178,9 @@ class DetailChatCubit extends BaseCubit<DetailChatState> {
         } else {
           final newList = [createMessage.data, ...state.messages];
           emit(state.copyWith(
-              messages: newList, wattingMessageId: createMessage.data.id));
+              messages: newList,
+              wattingMessageId: createMessage.data.id,
+              isWattingMessage: true));
         }
       }
     }
@@ -262,6 +276,7 @@ class DetailChatCubit extends BaseCubit<DetailChatState> {
           final createMessage = await hanamService.createMessageItem(
               conversationId: conversationId, question: messageText ?? "");
           if (createMessage == null) {
+            emit(state.copyWith(isWattingMessage: false));
             return;
           } else {
             if (state.socketMessage != null) {
@@ -272,7 +287,8 @@ class DetailChatCubit extends BaseCubit<DetailChatState> {
                   socketMessage: null));
             } else {
               final newList = [createMessage.data, ...state.messages];
-              emit(state.copyWith(messages: newList, wattingMessageId: null));
+              emit(state.copyWith(
+                  messages: newList, wattingMessageId: createMessage.data.id));
             }
           }
         },
@@ -296,15 +312,29 @@ class DetailChatCubit extends BaseCubit<DetailChatState> {
       if (findIndex >= 0) {
         final newList2 = [...state.messages];
         newList2[findIndex] = data;
-        emit(state.copyWith(
-            messages: newList2,
-            socketMessage: null,
-            wattingMessageId: null,
-            isWattingMessage: false));
+        emit(state.copyWith(messages: newList2, socketMessage: null));
       } else {
-        emit(state.copyWith(socketMessage: data));
+        Future.delayed(Duration(seconds: 1), () {
+          if (state.conversationInfo == null) {
+            return;
+          }
+          if (data.conversation == state.conversationInfo!.id) {
+            final findIndex =
+                state.messages.indexWhere((element) => element.id == data.id);
+            final newList2 = [...state.messages];
+            newList2[findIndex] = data;
+            emit(state.copyWith(
+              messages: newList2,
+              socketMessage: null,
+            ));
+          }
+        });
       }
     }
+  }
+
+  void continueQuestion() {
+    emit(state.copyWith(isWattingMessage: false, wattingMessageId: null));
   }
 
   void handleAddMessage(MessageItemModel newMessage) {

@@ -264,9 +264,16 @@ class DetailChatCubit extends BaseCubit<DetailChatState> {
           if (createMessage == null) {
             return;
           } else {
-            final newList = [createMessage.data, ...state.messages];
-            emit(state.copyWith(
-                messages: newList, wattingMessageId: createMessage.data.id));
+            if (state.socketMessage != null) {
+              final newList = [state.socketMessage!, ...state.messages];
+              emit(state.copyWith(
+                  messages: newList,
+                  isWattingMessage: false,
+                  socketMessage: null));
+            } else {
+              final newList = [createMessage.data, ...state.messages];
+              emit(state.copyWith(messages: newList, wattingMessageId: null));
+            }
           }
         },
         handleLoading: false,
@@ -286,10 +293,17 @@ class DetailChatCubit extends BaseCubit<DetailChatState> {
     if (data.conversation == state.conversationInfo!.id) {
       final findIndex =
           state.messages.indexWhere((element) => element.id == data.id);
-      final newList2 = [...state.messages];
-      newList2[findIndex] = data;
-      emit(state.copyWith(
-          messages: newList2, wattingMessageId: null, isWattingMessage: false));
+      if (findIndex >= 0) {
+        final newList2 = [...state.messages];
+        newList2[findIndex] = data;
+        emit(state.copyWith(
+            messages: newList2,
+            socketMessage: null,
+            wattingMessageId: null,
+            isWattingMessage: false));
+      } else {
+        emit(state.copyWith(socketMessage: data));
+      }
     }
   }
 

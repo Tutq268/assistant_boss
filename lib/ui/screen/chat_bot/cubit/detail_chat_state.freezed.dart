@@ -25,6 +25,7 @@ mixin _$DetailChatState {
   MessageModel? get conversationInfo => throw _privateConstructorUsedError;
   List<MessageModel> get listConversation => throw _privateConstructorUsedError;
   List<MessageItemModel> get messages => throw _privateConstructorUsedError;
+  MessageItemModel? get socketMessage => throw _privateConstructorUsedError;
   String? get wattingMessageId => throw _privateConstructorUsedError;
   bool get isWattingMessage => throw _privateConstructorUsedError;
   bool get showEmojiPicker => throw _privateConstructorUsedError;
@@ -53,6 +54,7 @@ abstract class $DetailChatStateCopyWith<$Res> {
       MessageModel? conversationInfo,
       List<MessageModel> listConversation,
       List<MessageItemModel> messages,
+      MessageItemModel? socketMessage,
       String? wattingMessageId,
       bool isWattingMessage,
       bool showEmojiPicker,
@@ -83,6 +85,7 @@ class _$DetailChatStateCopyWithImpl<$Res, $Val extends DetailChatState>
     Object? conversationInfo = freezed,
     Object? listConversation = null,
     Object? messages = null,
+    Object? socketMessage = freezed,
     Object? wattingMessageId = freezed,
     Object? isWattingMessage = null,
     Object? showEmojiPicker = null,
@@ -122,6 +125,10 @@ class _$DetailChatStateCopyWithImpl<$Res, $Val extends DetailChatState>
           ? _value.messages
           : messages // ignore: cast_nullable_to_non_nullable
               as List<MessageItemModel>,
+      socketMessage: freezed == socketMessage
+          ? _value.socketMessage
+          : socketMessage // ignore: cast_nullable_to_non_nullable
+              as MessageItemModel?,
       wattingMessageId: freezed == wattingMessageId
           ? _value.wattingMessageId
           : wattingMessageId // ignore: cast_nullable_to_non_nullable
@@ -163,6 +170,7 @@ abstract class _$$DetailChatStateImplCopyWith<$Res>
       MessageModel? conversationInfo,
       List<MessageModel> listConversation,
       List<MessageItemModel> messages,
+      MessageItemModel? socketMessage,
       String? wattingMessageId,
       bool isWattingMessage,
       bool showEmojiPicker,
@@ -191,6 +199,7 @@ class __$$DetailChatStateImplCopyWithImpl<$Res>
     Object? conversationInfo = freezed,
     Object? listConversation = null,
     Object? messages = null,
+    Object? socketMessage = freezed,
     Object? wattingMessageId = freezed,
     Object? isWattingMessage = null,
     Object? showEmojiPicker = null,
@@ -230,6 +239,10 @@ class __$$DetailChatStateImplCopyWithImpl<$Res>
           ? _value._messages
           : messages // ignore: cast_nullable_to_non_nullable
               as List<MessageItemModel>,
+      socketMessage: freezed == socketMessage
+          ? _value.socketMessage
+          : socketMessage // ignore: cast_nullable_to_non_nullable
+              as MessageItemModel?,
       wattingMessageId: freezed == wattingMessageId
           ? _value.wattingMessageId
           : wattingMessageId // ignore: cast_nullable_to_non_nullable
@@ -266,6 +279,7 @@ class _$DetailChatStateImpl implements _DetailChatState {
       this.conversationInfo,
       final List<MessageModel> listConversation = const [],
       final List<MessageItemModel> messages = const [],
+      this.socketMessage,
       this.wattingMessageId = null,
       this.isWattingMessage = false,
       this.showEmojiPicker = false,
@@ -309,6 +323,8 @@ class _$DetailChatStateImpl implements _DetailChatState {
   }
 
   @override
+  final MessageItemModel? socketMessage;
+  @override
   @JsonKey()
   final String? wattingMessageId;
   @override
@@ -326,7 +342,7 @@ class _$DetailChatStateImpl implements _DetailChatState {
 
   @override
   String toString() {
-    return 'DetailChatState(hideElements: $hideElements, messageController: $messageController, fieldFocusNode: $fieldFocusNode, showScrollBtn: $showScrollBtn, unreadCount: $unreadCount, conversationInfo: $conversationInfo, listConversation: $listConversation, messages: $messages, wattingMessageId: $wattingMessageId, isWattingMessage: $isWattingMessage, showEmojiPicker: $showEmojiPicker, loadingSentImage: $loadingSentImage, isLoading: $isLoading)';
+    return 'DetailChatState(hideElements: $hideElements, messageController: $messageController, fieldFocusNode: $fieldFocusNode, showScrollBtn: $showScrollBtn, unreadCount: $unreadCount, conversationInfo: $conversationInfo, listConversation: $listConversation, messages: $messages, socketMessage: $socketMessage, wattingMessageId: $wattingMessageId, isWattingMessage: $isWattingMessage, showEmojiPicker: $showEmojiPicker, loadingSentImage: $loadingSentImage, isLoading: $isLoading)';
   }
 
   @override
@@ -349,6 +365,8 @@ class _$DetailChatStateImpl implements _DetailChatState {
             const DeepCollectionEquality()
                 .equals(other._listConversation, _listConversation) &&
             const DeepCollectionEquality().equals(other._messages, _messages) &&
+            (identical(other.socketMessage, socketMessage) ||
+                other.socketMessage == socketMessage) &&
             (identical(other.wattingMessageId, wattingMessageId) ||
                 other.wattingMessageId == wattingMessageId) &&
             (identical(other.isWattingMessage, isWattingMessage) ||
@@ -372,6 +390,7 @@ class _$DetailChatStateImpl implements _DetailChatState {
       conversationInfo,
       const DeepCollectionEquality().hash(_listConversation),
       const DeepCollectionEquality().hash(_messages),
+      socketMessage,
       wattingMessageId,
       isWattingMessage,
       showEmojiPicker,
@@ -398,6 +417,7 @@ abstract class _DetailChatState implements DetailChatState {
       final MessageModel? conversationInfo,
       final List<MessageModel> listConversation,
       final List<MessageItemModel> messages,
+      final MessageItemModel? socketMessage,
       final String? wattingMessageId,
       final bool isWattingMessage,
       final bool showEmojiPicker,
@@ -420,6 +440,8 @@ abstract class _DetailChatState implements DetailChatState {
   List<MessageModel> get listConversation;
   @override
   List<MessageItemModel> get messages;
+  @override
+  MessageItemModel? get socketMessage;
   @override
   String? get wattingMessageId;
   @override

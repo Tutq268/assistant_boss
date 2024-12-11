@@ -18,6 +18,7 @@ class DetailChatState extends BaseState with _$DetailChatState {
       MessageModel? conversationInfo,
       @Default([]) List<MessageModel> listConversation,
       @Default([]) List<MessageItemModel> messages,
+      MessageItemModel? socketMessage,
       @Default(null) String? wattingMessageId,
       @Default(false) bool isWattingMessage,
       @Default(false) bool showEmojiPicker,

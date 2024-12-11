@@ -40,7 +40,7 @@ class _MessageCardState extends State<MessageCard>
                       padding: EdgeInsets.only(
                           top: 6.h, bottom: 6.h, left: 8.w, right: 8.w),
                       constraints: BoxConstraints(
-                          maxWidth: MediaQuery.of(context).size.width * .7),
+                          maxWidth: MediaQuery.of(context).size.width * .8),
                       // alignment: Alignment.centerRight,
                       decoration: BoxDecoration(
                         color: Colors.grey.withOpacity(.2),
@@ -74,7 +74,7 @@ class _MessageCardState extends State<MessageCard>
                         padding: EdgeInsets.only(
                             top: 6.h, bottom: 6.h, left: 8.w, right: 8.w),
                         constraints: BoxConstraints(
-                            maxWidth: MediaQuery.of(context).size.width * .7),
+                            maxWidth: MediaQuery.of(context).size.width * .8),
                         // alignment: Alignment.centerRight,
                         decoration: BoxDecoration(
                           color: Colors.grey.withOpacity(.2),
@@ -97,7 +97,7 @@ class _MessageCardState extends State<MessageCard>
                 padding: EdgeInsets.only(
                     top: 6.h, bottom: 6.h, left: 8.w, right: 8.w),
                 constraints: BoxConstraints(
-                    maxWidth: MediaQuery.of(context).size.width * .7),
+                    maxWidth: MediaQuery.of(context).size.width * .8),
                 // alignment: Alignment.centerRight,
                 child: widget.isLoading == true
                     ? Container(
@@ -130,7 +130,7 @@ class _MessageCardState extends State<MessageCard>
                         padding: EdgeInsets.only(
                             top: 6.h, bottom: 6.h, left: 8.w, right: 8.w),
                         constraints: BoxConstraints(
-                            maxWidth: MediaQuery.of(context).size.width * .7),
+                            maxWidth: MediaQuery.of(context).size.width * .8),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.start,
